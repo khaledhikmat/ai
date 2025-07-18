@@ -1,0 +1,2 @@
+MATCH (p:Person)-[:RESIDENT_OF]->(c:Country), (p:Person)-[:BORN_IN]->(bc:Country), (p:Person)-[:DIED_IN]->(dc:Country), (p:Person)-[:RESIDENT_OF]->(ci:City), (p:Person)-[:BORN_IN]->(bci:City), (p:Person)-[:DIED_IN]->(dci:City), (p:Person)-[:PARENT_OF]->(child:Person), (p:Person)-[:SPOUSE_OF]->(spouse:Person)
+RETURN p, c, bc, dc, ci, bci, dci, child, spouse

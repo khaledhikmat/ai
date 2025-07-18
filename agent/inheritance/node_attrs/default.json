@@ -1,0 +1,48 @@
+{
+    "labels": {
+        "Person": "name",
+        "Property": "name",
+        "Country": "name",
+        "City": "name"
+    },
+    "colors": {
+        "Person": "#1f77b4",
+        "Property": "#d62728",
+        "Country": "#2ca02c",
+        "City": "#ff7f0e"
+    },
+    "shapes": {
+        "Person": "circle",
+        "Property": "circle",
+        "Country": "circle",
+        "City": "circle"
+    },
+    "images": {
+        "Person": "https://avatars.githubusercontent.com/u/12345678?v=4",
+        "Property": "https://example.com/property.png",
+        "Country": "https://example.com/country.png",
+        "City": "https://example.com/city.png"
+    },
+    "icons": {
+        "Person": {
+            "face": "FontAwesome",
+            "code": "\uf007",
+            "color": "#1f77b4"
+        },
+        "Property": {
+            "face": "FontAwesome",
+            "code": "\uf015",
+            "color": "#d62728"
+        },
+        "Country": {
+            "face": "FontAwesome",
+            "code": "\uf0ac",
+            "color": "#2ca02c"
+        },
+        "City": {
+            "face": "FontAwesome",
+            "code": "\uf041",
+            "color": "#ff7f0e"
+        }
+    }
+}

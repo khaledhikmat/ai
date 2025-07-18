@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Keith Rad",
+        "residence_country": "USA",
+        "residence_city": "Dallas",
+        "profession": "Merchant",
+        "gender": "Male",
+        "education": "High School Diploma",
+        "birth_city": "New York",
+        "birth_country": "USA",
+        "birth_day": "01",
+        "birth_month": "01",
+        "birth_year": "1940",
+        "death_city": "Dallas",
+        "death_country": "USA",
+        "death_day": "01",
+        "death_month": "01",
+        "death_year": "2015",
+        "photo": "https://avatars.githubusercontent.com/u/12345678?v=4",
+        "birth_certificate": "https://avatars.githubusercontent.com/u/12345678?v=4",
+        "death_certificate": "https://avatars.githubusercontent.com/u/12345678?v=4",
+        "inheritance_confinement": "https://avatars.githubusercontent.com/u/12345678?v=4",
+        "children": [
+            "Kevin Rad",
+            "Jessica Rad"
+        ],
+        "spouses": [
+            "Valerie Thompson"
+        ]
+    },
+    {
+        "name": "Valerie Thompson",
+        "residence_country": "USA",
+        "residence_city": "Dallas",
+        "profession": "Homemaker",
+        "gender": "Female",
+        "education": "High School Diploma",
+        "birth_city": "Boston",
+        "birth_country": "USA",
+        "birth_day": "15",
+        "birth_month": "03",
+        "birth_year": "1945",
+        "death_city": "Dallas",
+        "death_country": "USA",
+        "death_day": "10",
+        "death_month": "12",
+        "death_year": "2020",
+        "photo": "https://avatars.githubusercontent.com/u/12345679?v=4",
+        "birth_certificate": "https://avatars.githubusercontent.com/u/12345679?v=4",
+        "death_certificate": "https://avatars.githubusercontent.com/u/12345679?v=4",
+        "inheritance_confinement": "https://avatars.githubusercontent.com/u/12345679?v=4",
+        "children": [
+            "Kevin Rad",
+            "Jessica Rad"
+        ],
+        "spouses": [
+            "Keith Rad"
+        ]
+    }
+]

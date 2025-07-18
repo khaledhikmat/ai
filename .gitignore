@@ -1,0 +1,10 @@
+chroma_db/
+lightrag_work_dir/
+llm_cache/
+data/
+outputs/
+__pycache__/
+venv
+.env
+lib/
+.DS_Store
