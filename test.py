@@ -35,7 +35,7 @@ def ingest_progress_callback(ingestor: str, current: int, total: int):
 async def repo_svc_tester(repo_urls: str) -> None:
     # Initialize services
     cfg_svc = EnvVarsConfigService()
-    repo_svc = GithubRepoService(cfg_svc)
+    repo_svc = GithubRepoService(cfg_svc) if cfg_svc.get_repo_type() == "github" else GitlabRepoService(cfg_svc)
 
     try:
         repo_urls = repo_urls.split(',')
