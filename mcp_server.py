@@ -10,7 +10,7 @@ import logging
 from dotenv import load_dotenv
 
 from mcp_servers.typex import MCPServerParameters, MCP_INIT_FNS, MCP_FIN_FNS
-from mcp_servers.incidents.server import initialize_mcp_params as init_security_mcp, finalize_mcp_params as fin_security_mcp
+from mcp_servers.incidents.server import initialize_mcp_params as init_inc_mcp, finalize_mcp_params as fin_inc_mcp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,12 +20,12 @@ load_dotenv()
 
 # MCP server initializers and finalizers registry
 mcp_init_fns: MCP_INIT_FNS = {
-    "security": init_security_mcp,
+    "inc": init_inc_mcp,
     # Add more MCP servers here as they are implemented
 }
 
 mcp_fin_fns: MCP_FIN_FNS = {
-    "security": fin_security_mcp,
+    "inc": fin_inc_mcp,
     # Add more MCP servers here as they are implemented
 }
 
@@ -88,9 +88,9 @@ if __name__ == "__main__":
         mcp_type = sys.argv[1]
         logger.info(f"Using MCP type from command line: {mcp_type}")
     
-    # Default to security server
+    # Default to incidents server
     else:
-        mcp_type = "security"
+        mcp_type = "inc"
         logger.info(f"Using default MCP type: {mcp_type}")
     
     try:

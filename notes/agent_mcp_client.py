@@ -6,12 +6,13 @@ from typing import Dict, Any, Optional
 
 from pydantic_ai import RunContext
 from pydantic_ai.agent import Agent
+from pydantic_ai.mcp import MCPServerStreamableHTTP
 
 from helpers.providers import get_llm_model
 from service.config.envvars import EnvVarsConfigService
 
 from agent.typex import AgentParameters
-from .prompts import SYSTEM_PROMPT
+from ..agent.incidents.prompts import SYSTEM_PROMPT
 
 
 @dataclass

@@ -7,7 +7,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 
-from agent.security.agent import initialize_agent_params, finalize_agent_params
+from notes.agent_mcp_client import initialize_agent_params, finalize_agent_params
 
 load_dotenv()
 

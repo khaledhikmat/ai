@@ -2,6 +2,8 @@
 
 A collection of MCP servers, AI agents and services to experiment with different AI tools and strategies.
 
+Please refer to [tasks](./tasks.md) for a list of pending tasks and issues and refer to [guide](./guide.md) for a conceptual understanding of source code structure.  
+
 ---
 
 ## Agents
@@ -49,6 +51,22 @@ The following are available RAG strategies:
 - `tools`: Use function calling to retrieve context data 
 
 TBA (Mermaid to show how the build and agent run processes work)
+
+### INC Agent
+
+This is a helpful assistant that answers questions about enterprise security incidents using an MCP Server.
+
+There is no ingestion process for the agent! But the MCP Server has its own ingetion or initialization code that seeds data into its database.
+
+TBA (Mermaid to show how the build and agent run processes work)
+
+## MCP Servers
+
+The following MCP Servers are available:
+
+### Security Incidents
+
+TBA
 
 ## Prerequisites
 
@@ -154,8 +172,8 @@ async def finalize_mcp_params(params: MCPServerParameters) -> None:
 2. Register in `mcp_server.py`:
 ```python
 mcp_init_fns: MCP_INIT_FNS = {
-    "security": init_security_mcp,
-    "newserver": init_newserver_mcp,  # Add here
+    "sec": init_security_mcp,
+    "news": init_newserver_mcp,  # Add here
 }
 ```
 
@@ -262,38 +280,9 @@ python3 cli.py inh ingest json
 
 The `json` data source assumes JSON files exist in `./data` folder named: `persons.json` and `properties.json`. Please use the [sample files](./sample-data/) to build your own. 
 
-### DOC Agent
+### INC Agent
 
-The following are some examples of `doc` agent ingest commands:
-
-```bash
-python3 cli.py doc ingest <rag-strategy> <repo_url1,repo_url2>
-
-## ingest using light rag
-python3 cli.py doc ingest_lr <repo_url1,repo_url2>
-pythin3 cli.py doc ingest_lr https://github.com/khaledhikmat/vs-go
-## ingest using graph rag
-python3 cli.py doc ingest_gr <repo_url1,repo_url2>
-## ingest using naive rag
-python3 cli.py doc ingest_nv <repo_url1,repo_url2>
-```
-
-### CTX Agent
-
-The `ctx` agent does not support any CLI commands.
-
-### INH Agent
-
-The following are some examples of `inh` agent ingest commands:
-
-```bash
-python3 cli.py inh ingest <data-source>
-
-## ingest using json data source
-python3 cli.py inh ingest json
-```
-
-The `json` data source assumes JSON files exist in `./data` folder named: `persons.json` and `properties.json`. Please use the [sample files](./sample-data/) to build your own. 
+The `inc` agent does not support any CLI commands.
 
 ---
 
@@ -315,6 +304,8 @@ export AGENT_RAG_STRATEGY=tools
 streamlit run app.py
 export AGENT_TYPE=inh
 export AGENT_RAG_STRATEGY=tools
+streamlit run app.py
+export AGENT_TYPE=inc
 streamlit run app.py
 ```
 
@@ -343,16 +334,18 @@ The most important CLI command that each agent type must support is `ingest` com
 python3 mcp_cli.py inc ingest
 ```
 
+This is to seed data into the MCP Server database.
+
 ---
 
 ## Running the MCP Server
 
 ```bash
 # From project root directory
-python3 mcp_server.py security
+python3 mcp_server.py inc
 
 # Or using environment variable
-export MCP_TYPE=security
+export MCP_TYPE=inc
 python3 mcp_server.py
 ```
 
@@ -383,7 +376,7 @@ This uses `stdio` transport and forces Claude to use the `venv` in my project an
 Then I added support for `http` transport and I was able to launch it locally:
 
 ```bash
-export MCP_TYPE=security
+export MCP_TYPE=inc
 python3 mcp_server.py
 ```
 
@@ -430,10 +423,3 @@ BTW...attempts to deploy Neo4J to Railway did not work well. The mixture of bolt
 
 ---
 
-## Issues
-
-- Although it seems to work ok:
-    - I see erros on build that seems to indicate missing packages! It has to do with the `graspologic` package.  
-    - I also see some errors like: `limit_async: Critical error in worker: <PriorityQueue at 0x1191c4e10 maxsize=1000> is bound to a different event loop` during querying.
-- Not sure what happens if I re-run build without deleting the `WORKING_DIR`!!!
-- Add support for multiple RAG strategies

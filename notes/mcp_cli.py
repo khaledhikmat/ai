@@ -6,8 +6,7 @@ import asyncio
 import click
 from pydantic_ai import RunContext
 
-from .agent import initialize_agent_params, finalize_agent_params
-
+from .agent_mcp_client import initialize_agent_params, finalize_agent_params
 
 @click.command()
 @click.option("--query", "-q", required=True, help="Security query to process")
