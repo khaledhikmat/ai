@@ -1,0 +1,31 @@
+[build]
+builder = "dockerfile"
+buildCommand = "docker build -t ai-mcp-server ."
+
+[deploy]
+startCommand = "python mcp_server.py security"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[environments.production]
+variables = [
+  "MCP_TYPE=security",
+  "NEO4J_URI",
+  "NEO4J_USERNAME", 
+  "NEO4J_PASSWORD",
+  "GITLAB_TOKEN",
+  "GITLAB_BASE_URL",
+  "GITLAB_SLUG",
+  "REPO_TYPE",
+  "REPO_URLS"
+]
+
+[environments.staging]
+variables = [
+  "MCP_TYPE=security",
+  "NEO4J_URI",
+  "NEO4J_USERNAME",
+  "NEO4J_PASSWORD"
+]

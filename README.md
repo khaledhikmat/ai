@@ -2,11 +2,13 @@
 
 A collection of MCP servers, AI agents and services to experiment with different AI tools and strategies.
 
+Please refer to [tasks](./tasks.md) for a list of pending tasks and issues and refer to [guide](./guide.md) for a conceptual understanding of source code structure.  
+
 ---
 
 ## Agents
 
-The following agenrs are available:
+The following agents are available:
 
 ### DOC Agent
 
@@ -49,6 +51,22 @@ The following are available RAG strategies:
 - `tools`: Use function calling to retrieve context data 
 
 TBA (Mermaid to show how the build and agent run processes work)
+
+### INC Agent
+
+This is a helpful assistant that answers questions about enterprise security incidents using an MCP Server.
+
+There is no ingestion process for the agent! But the MCP Server has its own ingetion or initialization code that seeds data into its database.
+
+TBA (Mermaid to show how the build and agent run processes work)
+
+## MCP Servers
+
+The following MCP Servers are available:
+
+### Security Incidents
+
+TBA
 
 ## Prerequisites
 
@@ -121,15 +139,48 @@ http://localhost:7474
 
 ---
 
-## Services
+## How It Works
 
-TBA
+### 1. Service Injection
+The MCP server uses the same services as agents:
+- `EnvVarsConfigService` for configuration
+- `Neo4jSecurityKnowledgeBaseService` for data operations
+- Clean dependency injection pattern
 
----
+### 2. Centralized Runner
+The root `mcp_server.py` handles:
+- Server type selection (environment var or CLI arg)
+- Service initialization and cleanup
+- Error handling and logging
+- Consistent startup/shutdown process
 
-## Pydantic Agent LLM Support
+### 3. Easy Extension
+To add a new MCP server:
 
-TBA
+1. Create `mcp/newserver/server.py`:
+```python
+async def initialize_mcp_params() -> MCPServerParameters:
+    # Initialize services and dependencies
+    # Create FastMCP server
+    # Register resources and tools
+    return MCPServerParameters(...)
+
+async def finalize_mcp_params(params: MCPServerParameters) -> None:
+    # Clean up resources
+```
+
+2. Register in `mcp_server.py`:
+```python
+mcp_init_fns: MCP_INIT_FNS = {
+    "sec": init_security_mcp,
+    "news": init_newserver_mcp,  # Add here
+}
+```
+
+3. Run it:
+```bash
+python mcp_server.py newserver
+```
 
 ---
 
@@ -186,7 +237,7 @@ python3 test.py test_neo4j xxx
 
 ---
 
-## CLI commands
+## Agent CLI commands
 
 Every agent type (i.e. `doc`, `inh`, etc) has its own CLI. However, the root `cli.py` routes the CLI processing to the different agent type specific CLI. Here is the general format:
 
@@ -229,6 +280,10 @@ python3 cli.py inh ingest json
 
 The `json` data source assumes JSON files exist in `./data` folder named: `persons.json` and `properties.json`. Please use the [sample files](./sample-data/) to build your own. 
 
+### INC Agent
+
+The `inc` agent does not support any CLI commands.
+
 ---
 
 ## Running the Agent
@@ -250,6 +305,8 @@ streamlit run app.py
 export AGENT_TYPE=inh
 export AGENT_RAG_STRATEGY=tools
 streamlit run app.py
+export AGENT_TYPE=inc
+streamlit run app.py
 ```
 
 *It might be better to provide a drop-down widget to select the different agent types.*
@@ -260,10 +317,109 @@ The interface will be available at [http://localhost:8501](http://localhost:8501
 
 ---
 
-## Issues
+## MCP CLI commands
 
-- Although it seems to work ok:
-    - I see erros on build that seems to indicate missing packages! It has to do with the `graspologic` package.  
-    - I also see some errors like: `limit_async: Critical error in worker: <PriorityQueue at 0x1191c4e10 maxsize=1000> is bound to a different event loop` during querying.
-- Not sure what happens if I re-run build without deleting the `WORKING_DIR`!!!
-- Add support for multiple RAG strategies
+Every mcp server type (i.e. `inc`, etc) has its own CLI. However, the root `mcp_cli.py` routes the CLI processing to the different mcp type specific CLI. Here is the general format:
+
+```bash
+python3 mcp_cli.py <mcp-server-type> <proc-name> <extra-args>
+```
+
+The most important CLI command that each agent type must support is `ingest` command: 
+
+### Security Incidents MCP Server
+
+```bash
+## ingest using json random data
+python3 mcp_cli.py inc ingest
+```
+
+This is to seed data into the MCP Server database.
+
+---
+
+## Running the MCP Server
+
+```bash
+# From project root directory
+python3 mcp_server.py inc
+
+# Or using environment variable
+export MCP_TYPE=inc
+python3 mcp_server.py
+```
+
+## Testing the MCP Server Locally
+
+Unfortuantely it has been very difficult to get the MCP Server to test. I was only able to test locally using Clause desktop with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "security-kb": {
+      "command": "/Users/khaled/github/ai/venv/bin/python",
+      "args": ["/Users/khaled/github/ai/mcp_server.py", "security"],
+      "cwd": "/Users/khaled/github/ai",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "admin4neo4j",
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
+```
+
+This uses `stdio` transport and forces Claude to use the `venv` in my project and it works fine. 
+
+Then I added support for `http` transport and I was able to launch it locally:
+
+```bash
+export MCP_TYPE=inc
+python3 mcp_server.py
+```
+
+But Claude desktop reported a parse erron on the configuration file when I added `http` transport:
+
+```json
+{
+  "mcpServers": {
+    "security-kb-http": {
+      "url": "http://localhost:8000",
+      "transport": "http"
+    }
+  }
+}
+```
+
+Switched Copilot to agent mode and requested tools. Added a new MCP Server using HTTP transport and selected user settings:
+
+```json
+"mcp": {
+        "servers": {
+            "sec-inc-kb": {
+                "url": "http://localhost:8000/mcp/"
+            }
+        }
+    }
+```
+
+Initially it did not work because I had the URL set as: `http://localhost:8000/mcp` (without the end slash). Eventually it worked with the end forward slash.
+
+Switch Copilot to Agent Mode -> Tools -> Add More Tools -> Add MCP Server -> HTTP Server.
+
+Then use `/tools` to make requests to the MCP server and interact with the security incident data. Then ask a question:
+
+```
+Show 10 incidents
+```
+
+Yay...this woked!!!
+
+## Deploying the MCP Server to Railway
+
+BTW...attempts to deploy Neo4J to Railway did not work well. The mixture of bolt and http ports confused the browser. Eventually I gave up on Railway to deploy my MCP Server. 
+
+---
+
