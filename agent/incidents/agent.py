@@ -19,23 +19,16 @@ class SecurityAgentDeps:
 # Global variable to hold the agent instance
 server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp")
 server = MCPServerStreamableHTTP(server_url)
-security_agent = None  # Will be initialized async
+security_agent = Agent(
+    get_llm_model(),
+    deps_type=SecurityAgentDeps,
+    system_prompt=SYSTEM_PROMPT,
+    toolsets=[server]
+)
 
 async def initialize_agent_params() -> AgentParameters:
     """Get the agent parameters."""
     await asyncio.sleep(0.1)
-    global security_agent
-    if security_agent is None:
-        # Initialize the agent only once
-        with server.start_session() as ctx:
-            mcp_tools = await server.get_tools(ctx)
-            security_agent = Agent(
-                get_llm_model(),
-                deps_type=SecurityAgentDeps,
-                system_prompt=SYSTEM_PROMPT,
-                tools=mcp_tools
-            )
-
     # Initialize services
     deps = SecurityAgentDeps()
     return AgentParameters(
