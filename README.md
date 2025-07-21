@@ -6,7 +6,7 @@ A collection of MCP servers, AI agents and services to experiment with different
 
 ## Agents
 
-The following agenrs are available:
+The following agents are available:
 
 ### DOC Agent
 
@@ -121,15 +121,48 @@ http://localhost:7474
 
 ---
 
-## Services
+## How It Works
 
-TBA
+### 1. Service Injection
+The MCP server uses the same services as agents:
+- `EnvVarsConfigService` for configuration
+- `Neo4jSecurityKnowledgeBaseService` for data operations
+- Clean dependency injection pattern
 
----
+### 2. Centralized Runner
+The root `mcp_server.py` handles:
+- Server type selection (environment var or CLI arg)
+- Service initialization and cleanup
+- Error handling and logging
+- Consistent startup/shutdown process
 
-## Pydantic Agent LLM Support
+### 3. Easy Extension
+To add a new MCP server:
 
-TBA
+1. Create `mcp/newserver/server.py`:
+```python
+async def initialize_mcp_params() -> MCPServerParameters:
+    # Initialize services and dependencies
+    # Create FastMCP server
+    # Register resources and tools
+    return MCPServerParameters(...)
+
+async def finalize_mcp_params(params: MCPServerParameters) -> None:
+    # Clean up resources
+```
+
+2. Register in `mcp_server.py`:
+```python
+mcp_init_fns: MCP_INIT_FNS = {
+    "security": init_security_mcp,
+    "newserver": init_newserver_mcp,  # Add here
+}
+```
+
+3. Run it:
+```bash
+python mcp_server.py newserver
+```
 
 ---
 
@@ -186,7 +219,7 @@ python3 test.py test_neo4j xxx
 
 ---
 
-## CLI commands
+## Agent CLI commands
 
 Every agent type (i.e. `doc`, `inh`, etc) has its own CLI. However, the root `cli.py` routes the CLI processing to the different agent type specific CLI. Here is the general format:
 
@@ -195,6 +228,39 @@ python3 cli.py <agent-type> <proc-name> <extra-args>
 ```
 
 The most important CLI command that each agent type must support is `ingest` command: 
+
+### DOC Agent
+
+The following are some examples of `doc` agent ingest commands:
+
+```bash
+python3 cli.py doc ingest <rag-strategy> <repo_url1,repo_url2>
+
+## ingest using light rag
+python3 cli.py doc ingest_lr <repo_url1,repo_url2>
+pythin3 cli.py doc ingest_lr https://github.com/khaledhikmat/vs-go
+## ingest using graph rag
+python3 cli.py doc ingest_gr <repo_url1,repo_url2>
+## ingest using naive rag
+python3 cli.py doc ingest_nv <repo_url1,repo_url2>
+```
+
+### CTX Agent
+
+The `ctx` agent does not support any CLI commands.
+
+### INH Agent
+
+The following are some examples of `inh` agent ingest commands:
+
+```bash
+python3 cli.py inh ingest <data-source>
+
+## ingest using json data source
+python3 cli.py inh ingest json
+```
+
+The `json` data source assumes JSON files exist in `./data` folder named: `persons.json` and `properties.json`. Please use the [sample files](./sample-data/) to build your own. 
 
 ### DOC Agent
 
@@ -257,6 +323,110 @@ streamlit run app.py
 `app.py` expects each agent to expose agent [initializer](./agent/typex.py) and [finalizer](./agent/typex.py) functions.  
 
 The interface will be available at [http://localhost:8501](http://localhost:8501)
+
+---
+
+## MCP CLI commands
+
+Every mcp server type (i.e. `inc`, etc) has its own CLI. However, the root `mcp_cli.py` routes the CLI processing to the different mcp type specific CLI. Here is the general format:
+
+```bash
+python3 mcp_cli.py <mcp-server-type> <proc-name> <extra-args>
+```
+
+The most important CLI command that each agent type must support is `ingest` command: 
+
+### Security Incidents MCP Server
+
+```bash
+## ingest using json random data
+python3 mcp_cli.py inc ingest
+```
+
+---
+
+## Running the MCP Server
+
+```bash
+# From project root directory
+python3 mcp_server.py security
+
+# Or using environment variable
+export MCP_TYPE=security
+python3 mcp_server.py
+```
+
+## Testing the MCP Server Locally
+
+Unfortuantely it has been very difficult to get the MCP Server to test. I was only able to test locally using Clause desktop with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "security-kb": {
+      "command": "/Users/khaled/github/ai/venv/bin/python",
+      "args": ["/Users/khaled/github/ai/mcp_server.py", "security"],
+      "cwd": "/Users/khaled/github/ai",
+      "env": {
+        "NEO4J_URI": "bolt://localhost:7687",
+        "NEO4J_USERNAME": "neo4j",
+        "NEO4J_PASSWORD": "admin4neo4j",
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
+```
+
+This uses `stdio` transport and forces Claude to use the `venv` in my project and it works fine. 
+
+Then I added support for `http` transport and I was able to launch it locally:
+
+```bash
+export MCP_TYPE=security
+python3 mcp_server.py
+```
+
+But Claude desktop reported a parse erron on the configuration file when I added `http` transport:
+
+```json
+{
+  "mcpServers": {
+    "security-kb-http": {
+      "url": "http://localhost:8000",
+      "transport": "http"
+    }
+  }
+}
+```
+
+Switched Copilot to agent mode and requested tools. Added a new MCP Server using HTTP transport and selected user settings:
+
+```json
+"mcp": {
+        "servers": {
+            "sec-inc-kb": {
+                "url": "http://localhost:8000/mcp/"
+            }
+        }
+    }
+```
+
+Initially it did not work because I had the URL set as: `http://localhost:8000/mcp` (without the end slash). Eventually it worked with the end forward slash.
+
+Switch Copilot to Agent Mode -> Tools -> Add More Tools -> Add MCP Server -> HTTP Server.
+
+Then use `/tools` to make requests to the MCP server and interact with the security incident data. Then ask a question:
+
+```
+Show 10 incidents
+```
+
+Yay...this woked!!!
+
+## Deploying the MCP Server to Railway
+
+BTW...attempts to deploy Neo4J to Railway did not work well. The mixture of bolt and http ports confused the browser. Eventually I gave up on Railway to deploy my MCP Server. 
 
 ---
 

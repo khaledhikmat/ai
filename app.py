@@ -23,6 +23,7 @@ from agent.typex import AgentParameters, AGENT_INIT_FNS, AGENT_FIN_FNS
 from agent.doc.agent import initialize_agent_params as init_doc_agent, finalize_agent_params as fin_doc_agent
 from agent.ctx.agent import initialize_agent_params as init_ctx_agent, finalize_agent_params as fin_ctx_agent
 from agent.inheritance.agent import initialize_agent_params as init_inh_agent, finalize_agent_params as fin_inh_agent
+from agent.security.agent import initialize_agent_params as init_security_agent, finalize_agent_params as fin_security_agent
 
 load_dotenv()
 
@@ -56,12 +57,14 @@ agent_init_fns: AGENT_INIT_FNS = {
     "doc": init_doc_agent,
     "ctx": init_ctx_agent,
     "inh": init_inh_agent,
+    "security": init_security_agent,
 }
 
 agent_fin_fns: AGENT_FIN_FNS = {
     "doc": fin_doc_agent,
     "ctx": fin_ctx_agent,
     "inh": fin_inh_agent,
+    "security": fin_security_agent,
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
